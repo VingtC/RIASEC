@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Filtre RIASEC</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+        }
+
+        .formation {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h2 style="text-align: center;">Filtrer les formations CAP et Bac pro de Paris par domaine RIASEC🔎</h2>
+    <p style="text-align: center;">Sélectionnez 1 à 3 codes RIASEC qui correspondent à votre profil (majeur ou mineur) pour filtrer les résultats.</p>
+    <form id="riasecForm">
+        <label><input type="checkbox" value="R"> Réaliste</label>
+        <label><input type="checkbox" value="I"> Investigateur</label>
+        <label><input type="checkbox" value="A"> Artistique</label>
+        <label><input type="checkbox" value="S"> Social</label>
+        <label><input type="checkbox" value="E"> Entreprenant</label>
+        <label><input type="checkbox" value="C"> Conventionnel</label>
+    </form>
+
+    <h3>Formations correspondantes :</h3>
+    <div id="results"></div>
+
+    <script>
+        const formations = [
+                    { nom: " CAP accessoiriste realisateur", majeur:  "A", mineur: "R" , resume: "Apprend à fabriquer des objets pour le cinéma, le théâtre ou les spectacles." , job: "Accessoiriste, technicien plateau, décorateur", domain: "Communication et information",    etablissements: [
+        {lycée: "Lycée polyvalent Léonard de Vinci - Lycée des métiers du bois", Statut: "public", arrondissement: "15", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP accompagnant educatif petite enfance", majeur:  "S", mineur: "R" , resume: "Prépare à s’occuper de jeunes enfants à la maison ou en crèche." , job: "Assistant maternel, agent de crèche, animateur petite enfance", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée polyvalent Jacques MONOD", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent Jacques MONOD", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent Jacques MONOD - Lycée des métiers des carrières sanitaires et sociales", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "97,1", va: "1,5"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "97,1", va: "1,5"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée Polyvalent Privé Saint-Vincent-de-Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée professionnel Etienne Dolet", Statut: "public", arrondissement: "20", txreu: "91,4", va: "5,9"  },
+        {lycée: "Lycée professionnel Etienne Dolet", Statut: "public", arrondissement: "20", txreu: "91,4", va: "5,9"  }
+        ]},
+        { nom: " BAC PRO accompagnement soins et services a la personne option a - a domicile", majeur:  "S", mineur: "R" , resume: "Forme à aider les personnes âgées ou malades chez elles." , job: "Auxiliaire de vie, aide à domicile, accompagnant social", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "87,5", va: "3,3"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  }
+        ]},
+        { nom: " BAC PRO accompagnement soins et services a la personne option b - en structure", majeur:  "S", mineur: "C" , resume: "Prépare à travailler dans des maisons de retraite ou hôpitaux." , job: "Aide-soignant, agent hospitalier, éducateur spécialisé", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "87,5", va: "3,3"  },
+        {lycée: "Lycée polyvalent Jacques MONOD", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent Jacques MONOD - Lycée des métiers des carrières sanitaires et sociales", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "97,1", va: "1,5"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "94,3", va: "0,7"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre - Lycée des métiers privé de la vente et du commerce", Statut: "privé sous contrat", arrondissement: "18", txreu: "94,3", va: "0,7"  },
+        {lycée: "Lycée Polyvalent Privé Saint-Vincent-de-Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée professionnel Etienne Dolet", Statut: "public", arrondissement: "20", txreu: "91,4", va: "5,9"  }
+        ]},
+        { nom: " BAC PRO accueil - relation clients et usagers", majeur:  "E", mineur: "S" , resume: "Apprend à accueillir et informer les clients ou visiteurs." , job: "Agent d’accueil, réceptionniste, conseiller clientèle", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée polyvalent Edgar Quinet", Statut: "public", arrondissement: "09", txreu: "80,2", va: "4,6"  },
+        {lycée: "Lycée polyvalent François Truffaut", Statut: "public", arrondissement: "03", txreu: "75,5", va: "-3,25"  },
+        {lycée: "Lycée polyvalent Jean Lurçat", Statut: "public", arrondissement: "13", txreu: "78,9", va: "-0,7"  },
+        {lycée: "Lycée polyvalent Martin Nadaud", Statut: "public", arrondissement: "20", txreu: "71,9", va: "0,6"  },
+        {lycée: "Lycée polyvalent privé Le Rebours - Lycée des métiers du management et des services", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,5", va: "-1,2"  },
+        {lycée: "Lycée polyvalent Simone Weil", Statut: "public", arrondissement: "03", txreu: "81,1666666666667", va: "0"  },
+        {lycée: "Lycée professionnel Abbé Grégoire", Statut: "public", arrondissement: "03", txreu: "70,8", va: "-4,6"  },
+        {lycée: "Lycée professionnel Armand Carrel", Statut: "public", arrondissement: "19", txreu: "66,125", va: "-6,125"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée Professionnel Beaugrenelle - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée Professionnel Erik Satie", Statut: "public", arrondissement: "14", txreu: "78,1", va: "-1,2"  },
+        {lycée: "Lycée Professionnel Erik Satie - Lycée des métiers de la gestion et de la transaction des professions immobilières", Statut: "public", arrondissement: "14", txreu: "78,1", va: "-1,2"  },
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "79,6", va: "-2,9"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "65,6", va: "-8,2"  },
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  }
+        ]},
+        { nom: " CAP agent de la qualite de l'eau", majeur:  "R", mineur: "I" , resume: "Forme à surveiller et traiter l’eau pour qu’elle soit propre." , job: "Technicien eau, agent de station d’épuration", domain: "Specialites pluri-technologiques de la production",    etablissements: [
+        {lycée: "Lycée Professionnel N.L Vauquelin", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  },
+        {lycée: "Lycée Professionnel N.L Vauquelin - Lycée des métiers des procédés chimiques, des biotechnologies et de l'eau", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  }
+        ]},
+        { nom: " CAP agent de proprete et d'hygiene", majeur:  "R", mineur: "C" , resume: "Apprend à nettoyer et désinfecter des lieux publics ou privés." , job: "Agent d’entretien, technicien hygiène", domain: "Services à la collectivité",    etablissements: [
+        {lycée: "Lycée professionnel Edmond Rostand", Statut: "public", arrondissement: "18", txreu: "80", va: "nr"  },
+        ]},
+        { nom: " CAP agent de securite", majeur:  "R", mineur: "E" , resume: "Prépare à surveiller des lieux et assurer la sécurité des personnes." , job: "Agent de sécurité, rondier, opérateur vidéosurveillance", domain: "Services à la collectivité",    etablissements: [
+        {lycée: "Lycée polyvalent privé Catherine Labouré", Statut: "privé sous contrat", arrondissement: "14", txreu: "98,75", va: "2"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "90,125", va: "-0,875"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "90,125", va: "-0,875"  }
+        ]},
+        { nom: " CAP agent polyvalent de restauration", majeur:  "R", mineur: "C" , resume: "Apprend à aider en cuisine et en salle dans les cantines ou restaurants." , job: "Employé de restauration, commis, serveur", domain: "Services",    etablissements: [
+        {lycée: "Lycée professionnel Edmond Rostand", Statut: "public", arrondissement: "18", txreu: "74,875", va: "nr"  },
+        ]},
+        { nom: " BAC PRO amenagement et finitions du batiment", majeur:  "R", mineur: "A" , resume: "Forme à décorer et rénover les bâtiments (peinture, carrelage…)." , job: "Peintre en bâtiment, solier, plaquiste", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  }
+        ]},
+        { nom: " BAC PRO animation - enfance et personnes agees", majeur:  "S", mineur: "A" , resume: "Prépare à organiser des activités pour enfants ou seniors." , job: "Animateur socioculturel, animateur en EHPAD", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "87,5", va: "3,3"  },
+        {lycée: "Lycée polyvalent Jacques MONOD", Statut: "public", arrondissement: "05", txreu: "88,1", va: "1,1"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "94,3", va: "0,7"  },
+        {lycée: "Lycée Polyvalent Privé Saint-Vincent-de-Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,4", va: "0,3"  },
+        {lycée: "Lycée professionnel Etienne Dolet", Statut: "public", arrondissement: "20", txreu: "91,4", va: "5,9"  }
+        ]},
+        { nom: " BAC PRO artisanat et metiers d'art option : communication visuelle pluri-media", majeur:  "A", mineur: "C" , resume: "Forme à créer des affiches, logos, sites web ou vidéos." , job: "Graphiste, maquettiste, designer web", domain: "Communication et information",    etablissements: [
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "95", va: "2,7"  },
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "88,6", va: "0,7"  }
+        ]},
+        { nom: " BAC PRO artisanat et metiers d'art option : metiers de l'enseigne et de la signaletique", majeur:  "A", mineur: "C" , resume: "Apprend à fabriquer des panneaux, enseignes et décorations visuelles." , job: "Technicien signalétique, poseur d’enseignes", domain: "Communication et information",    etablissements: [
+        {lycée: "Lycée polyvalent Caroline Dorian", Statut: "public", arrondissement: "11", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée polyvalent Dorian - Lycée des métiers de la mécatronique, de la topographie et de la verrerie", Statut: "public", arrondissement: "11", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO artisanat et metiers d'art option : tapissier d'ameublement", majeur:  "A", mineur: "R" , resume: "Forme à refaire ou créer des sièges, rideaux, coussins." , job: "Tapissier, décorateur d’intérieur", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "90,2857142857143", va: "-0,166666666666667"  }
+        ]},
+        { nom: " BAC PRO artisanat et metiers d'art option : verrerie scientifique et technique", majeur:  "R", mineur: "A" , resume: "Apprend à fabriquer des objets en verre pour la science ou l’industrie." , job: "Verrier, souffleur de verre", domain: "Production",    etablissements: [
+        {lycée: "Lycée polyvalent Caroline Dorian", Statut: "public", arrondissement: "11", txreu: "81,5384615384615", va: "0,230769230769231"  },
+        {lycée: "Lycée polyvalent Dorian - Lycée des métiers de la mécatronique, de la topographie et de la verrerie", Statut: "public", arrondissement: "11", txreu: "81,5384615384615", va: "0,230769230769231"  }
+        ]},
+        { nom: " BAC PRO artisanat et metiers d'art option marchandisage visuel", majeur:  "A", mineur: "E" , resume: "Prépare à mettre en valeur les produits dans les magasins." , job: "Merchandiser, décorateur vitrine", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "88,1111111111111", va: "0,222222222222222"  },
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP arts de la broderie", majeur:  "A", mineur: "C" , resume: "Apprend à décorer des tissus avec des fils et motifs." , job: "Brodeur, artisan textile", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée Professionnel Octave Feuilet - Lycée des métiers de la mode", Statut: "public", arrondissement: "16", txreu: "93,1", va: "3,55555555555556"  }
+        ]},
+        { nom: " CAP arts de la reliure", majeur:  "A", mineur: "R" , resume: "Forme à réparer et décorer des livres." , job: "Relieur, artisan du livre", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Corvisart-Arts Graphiques", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP arts et techniques du verre option decorateur", majeur:  "A", mineur: "R" , resume: "Forme à décorer des objets en verre." , job: "Décorateur sur verre, artisan verrier", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Ecole du Verre de Paris - Lycée Polyvalent des Métiers d'Art Lucas de Nehou", Statut: "public", arrondissement: "14", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée polyvalent Lucas de Nehou - Lycée des métiers des arts du verre et des structures verrières", Statut: "public", arrondissement: "14", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP arts et techniques du verre option vitrailliste", majeur:  "A", mineur: "R" , resume: "Apprend à créer des vitraux pour les bâtiments." , job: "Vitrailliste, artisan du verre", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Ecole du Verre de Paris - Lycée Polyvalent des Métiers d'Art Lucas de Nehou", Statut: "public", arrondissement: "14", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée polyvalent Lucas de Nehou - Lycée des métiers des arts du verre et des structures verrières", Statut: "public", arrondissement: "14", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO assistance a la gestion des organisations et de leurs activites", majeur:  "C", mineur: "E" , resume: "Apprend à gérer les papiers, les plannings et l’organisation dans une entreprise." , job: "Assistant administratif, gestionnaire, secrétaire", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée polyvalent Martin Nadaud", Statut: "public", arrondissement: "20", txreu: "71,9", va: "0,6"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "95,5", va: "1,8"  },
+        {lycée: "Lycée polyvalent privé Catherine Labouré", Statut: "privé sous contrat", arrondissement: "14", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée polyvalent privé Le Rebours - Lycée des métiers du management et des services", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,5", va: "-1,2"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent privé Saint-Nicolas", Statut: "privé sous contrat", arrondissement: "06", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée polyvalent Simone Weil", Statut: "public", arrondissement: "03", txreu: "81,1666666666667", va: "0"  },
+        {lycée: "Lycée professionnel Abbé Grégoire", Statut: "public", arrondissement: "03", txreu: "70,8", va: "-4,6"  },
+        {lycée: "Lycée professionnel Armand Carrel", Statut: "public", arrondissement: "19", txreu: "66,125", va: "-6,125"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée professionnel Charles de Gaulle", Statut: "public", arrondissement: "20", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée Professionnel Erik Satie - Lycée des métiers de la gestion et de la transaction des professions immobilières", Statut: "public", arrondissement: "14", txreu: "78,1", va: "-1,2"  },
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "79,6", va: "-2,9"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "65,6", va: "-8,2"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  },
+        {lycée: "Lycée professionnel Suzanne Valadon", Statut: "public", arrondissement: "18", txreu: "79", va: "4,42857142857143"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "72,5555555555556", va: "-4,88888888888889"  }
+        ]},
+        { nom: " CAP assistant(e) technique en milieux familial et collectif", majeur:  "S", mineur: "C" , resume: "Prépare à aider dans les tâches du quotidien (repas, ménage, soins) pour les familles ou collectivités." , job: "Agent de service, aide à domicile, employé en collectivité", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée professionnel Edmond Rostand", Statut: "public", arrondissement: "18", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO bio-industries de transformation", majeur:  "R", mineur: "I" , resume: "Apprend à fabriquer des produits alimentaires ou cosmétiques en usine." , job: "Opérateur de production, technicien agroalimentaire", domain: "Specialites pluri-technologiques de la production",    etablissements: [
+        {lycée: "Lycée Professionnel N.L Vauquelin", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  },
+        {lycée: "Lycée Professionnel N.L Vauquelin - Lycée des métiers des procédés chimiques, des biotechnologies et de l'eau", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  }
+        ]},
+        { nom: " CAP boulanger", majeur:  "R", mineur: "C" , resume: "Apprend à faire du pain, des viennoiseries et à gérer un fournil." , job: "Boulanger, ouvrier boulanger", domain: "Production",    etablissements: [
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "94,4615384615385", va: "1,76923076923077"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "94,4615384615385", va: "1,76923076923077"  }
+        ]},
+        { nom: " BAC PRO boulanger-pâtissier", majeur:  "R", mineur: "C" , resume: "Forme à fabriquer pains, gâteaux et desserts en boulangerie-pâtisserie." , job: "Boulanger-pâtissier, chef de production", domain: "Production",    etablissements: [
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "94,4615384615385", va: "1,76923076923077"  }
+        ]},
+        { nom: " CAP bronzier option a : monteur en bronze", majeur:  "R", mineur: "A" , resume: "Apprend à assembler des pièces en bronze pour objets décoratifs ou techniques." , job: "Monteur en bronze, artisan bronzier", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "90,2857142857143", va: "-0,166666666666667"  }
+        ]},
+        { nom: " CAP carreleur mosaiste", majeur:  "R", mineur: "A" , resume: "Forme à poser du carrelage et créer des décors en mosaïque." , job: "Carreleur, mosaïste", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  }
+        ]},
+        { nom: " CAP chaussure", majeur:  "R", mineur: "C" , resume: "Apprend à fabriquer ou réparer des chaussures." , job: "Cordonnier, fabricant de chaussures", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "57,3", va: "-12,2"  }
+        ]},
+        { nom: " CAP coiffure", majeur:  "S", mineur: "A" , resume: "Prépare à couper, coiffer et conseiller les clients." , job: "Coiffeur, coloriste, visagiste", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "80,5384615384615", va: "-6,46153846153846"  },
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "80,5384615384615", va: "-6,46153846153846"  },
+        {lycée: "Lycée professionnel privé Coiffure Marcel Lamy", Statut: "privé sous contrat", arrondissement: "18", txreu: "79,8", va: "-10,3333333333333"  },
+        {lycée: "Lycée professionnel privé Coiffure Marcel Lamy", Statut: "privé sous contrat", arrondissement: "18", txreu: "79,8", va: "-10,3333333333333"  }
+        ]},
+        { nom: " BAC PRO commerce", majeur:  "E", mineur: "C" , resume: "Apprend à vendre, gérer un rayon et conseiller les clients." , job: "Vendeur, responsable de rayon, commercial", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Etablissement régional d'enseignement adapté Crocé Spinelli", Statut: "public", arrondissement: "14", txreu: "77", va: "0,666666666666667"  },
+        {lycée: "Lycée polyvalent Edgar Quinet", Statut: "public", arrondissement: "09", txreu: "80,2", va: "4,6"  },
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "74,6", va: "-5,3"  },
+        {lycée: "Lycée polyvalent François Truffaut", Statut: "public", arrondissement: "03", txreu: "75,5", va: "-3,25"  },
+        {lycée: "Lycée polyvalent Jean Lurçat", Statut: "public", arrondissement: "13", txreu: "78,9", va: "-0,7"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "95,5", va: "1,8"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "98,2", va: "3,4"  },
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "88,1111111111111", va: "0,222222222222222"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre - Lycée des métiers privé de la vente et du commerce", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent Simone Weil", Statut: "public", arrondissement: "03", txreu: "81,1666666666667", va: "0"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée Professionnel Beaugrenelle - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "65,6", va: "-8,2"  },
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  },
+        {lycée: "Lycée professionnel Suzanne Valadon", Statut: "public", arrondissement: "18", txreu: "79", va: "4,42857142857143"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "72,5555555555556", va: "-4,88888888888889"  },
+        {lycée: "Lycée Professionnel Turquetil - Lycée des métiers de la mode", Statut: "public", arrondissement: "11", txreu: "69", va: "-6,3"  }
+        ]},
+        { nom: " BAC PRO commercialisation et services en restauration", majeur:  "S", mineur: "E" , resume: "Prépare à gérer le service en salle et la relation client dans la restauration." , job: "Maître d’hôtel, chef de rang, responsable de salle", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Guillaume Tirel - Lycée des métiers de l' hotellerie", Statut: "public", arrondissement: "14", txreu: "94,1538461538462", va: "8,23076923076923"  },
+        {lycée: "Lycée Polyvalent Jean Drouant - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "17", txreu: "83,1538461538462", va: "2,30769230769231"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "94,3846153846154", va: "2,23076923076923"  },
+        {lycée: "Lycée polyvalent privé Sainte Thérèse", Statut: "privé sous contrat", arrondissement: "16", txreu: "76,3333333333333", va: "nr"  },
+        {lycée: "Lycée professionnel Belliard - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "18", txreu: "83,1538461538462", va: "6,18181818181818"  }
+        ]},
+        { nom: " CAP cordonnerie multiservice", majeur:  "R", mineur: "C" , resume: "Forme à réparer chaussures, clés, montres et autres objets du quotidien." , job: "Cordonnier, réparateur multiservice", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "88,9230769230769", va: "5,25"  }
+        ]},
+        { nom: " CAP couvreur", majeur:  "R", mineur: "I" , resume: "Apprend à poser et réparer les toits des bâtiments." , job: "Couvreur, zingueur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  }
+        ]},
+        { nom: " CAP decoration en ceramique", majeur:  "A", mineur: "R" , resume: "Apprend à décorer des objets en terre cuite ou porcelaine." , job: "Décorateur céramiste, artisan d’art", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP distribution d'objets et services a la clientele", majeur:  "C", mineur: "S" , resume: "Forme à livrer et présenter des produits aux clients." , job: "Livreur, agent de distribution", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  }
+        ]},
+        { nom: " CAP ebeniste", majeur:  "R", mineur: "A" , resume: "Apprend à fabriquer et restaurer des meubles en bois." , job: "Ébéniste, artisan menuisier", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO electrotechnique energie equipements communicants", majeur:  "R", mineur: "I" , resume: "Forme à gérer des installations électriques complexes et connectées." , job: "Électrotechnicien, installateur domotique", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Louis Armand", Statut: "public", arrondissement: "15", txreu: "79,4", va: "3,7"  },
+        {lycée: "Lycée polyvalent privé Sainte Thérèse", Statut: "privé sous contrat", arrondissement: "16", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP ferronnier d'art", majeur:  "A", mineur: "R" , resume: "Apprend à créer des objets en fer forgé (portes, rampes d’escalier)." , job: "Ferronnier d’art, artisan du métal", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP fleuriste", majeur:  "A", mineur: "S" , resume: "Forme à créer des bouquets et à vendre des plantes." , job: "Fleuriste, artisan floral", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Gabriel Fauré", Statut: "public", arrondissement: "13", txreu: "83,3", va: "nr"  },
+        ]},
+        { nom: " CAP glacier fabricant", majeur:  "R", mineur: "A" , resume: "Apprend à préparer et vendre des glaces artisanales." , job: "Glacier, artisan glacier", domain: "Production",    etablissements: [
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO hotellerie", majeur:  "E", mineur: "S" , resume: "Prépare à travailler dans l’accueil, le service et la gestion d’un hôtel." , job: "Réceptionniste, gouvernant, assistant de direction", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Guillaume Tirel - Lycée des métiers de l' hotellerie", Statut: "public", arrondissement: "14", txreu: "94,1538461538462", va: "8,23076923076923"  },
+        {lycée: "Lycée Polyvalent Jean Drouant - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "17", txreu: "83,1538461538462", va: "2,30769230769231"  },
+        {lycée: "Lycée polyvalent privé Sainte Thérèse", Statut: "privé sous contrat", arrondissement: "16", txreu: "76,3333333333333", va: "nr"  },
+        {lycée: "Lycée professionnel Belliard - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "18", txreu: "83,1538461538462", va: "6,18181818181818"  },
+        ]},
+        { nom: " BAC PRO hygiene propreté sterilisation", majeur:  "C", mineur: "R" , resume: "Forme à nettoyer et désinfecter des locaux pour éviter les infections." , job: "Agent d'entretien, technicien de surface", domain: "Services à la collectivité",    etablissements: [
+        {lycée: "Lycée professionnel Georges Brassens", Statut: "public", arrondissement: "19", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO gestion des pollutions et protection de l'environnement", majeur:  "I", mineur: "R" , resume: "Apprend à analyser et réduire la pollution de l'eau, l'air et les déchets." , job: "Technicien de l’environnement, chargé de dépollution", domain: "Specialites pluri-technologiques de la production",    etablissements: [
+        {lycée: "Lycée Professionnel N.L Vauquelin - Lycée des métiers des procédés chimiques, des biotechnologies et de l'eau", Statut: "public", arrondissement: "13", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO melec - métiers de l'electricité et de ses environnements connectés", majeur:  "R", mineur: "I" , resume: "Forme à installer et entretenir des systèmes électriques intelligents." , job: "Électricien, technicien domotique, installateur de réseaux", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Louis Armand", Statut: "public", arrondissement: "15", txreu: "79,4", va: "3,7"  },
+        {lycée: "Lycée polyvalent privé Sainte Thérèse", Statut: "privé sous contrat", arrondissement: "16", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP menuisier fabricant de menuiserie mobilier et agencement", majeur:  "R", mineur: "A" , resume: "Apprend à fabriquer des fenêtres, portes, cuisines et meubles en bois." , job: "Menuisier, agenceur, poseur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée polyvalent Léonard de Vinci - Lycée des métiers du bois", Statut: "public", arrondissement: "15", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel La Source - Lycée des métiers du BTP, de l'ameublement, et du bois", Statut: "public", arrondissement: "16", txreu: "81,25", va: "1,5"  },
+        ]},
+        { nom: " CAP metiers de la mode : chapelier-modiste", majeur:  "A", mineur: "R" , resume: "Apprend à créer des chapeaux et accessoires de mode." , job: "Chapelier, modiste", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée Professionnel Octave Feuilet - Lycée des métiers de la mode", Statut: "public", arrondissement: "16", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP metiers de la mode : vêtement flou", majeur:  "A", mineur: "R" , resume: "Apprend à fabriquer des vêtements souples (robes, chemisiers)." , job: "Couturier, retoucheur, modéliste", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée Professionnel Octave Feuilet - Lycée des métiers de la mode", Statut: "public", arrondissement: "16", txreu: "93,1", va: "3,55555555555556"  },
+        {lycée: "Lycée professionnel Turquetil - Lycée des métiers de la mode", Statut: "public", arrondissement: "11", txreu: "69", va: "-6,3"  },
+        ]},
+        { nom: " CAP metiers de la mode : vêtement tailleur", majeur:  "R", mineur: "A" , resume: "Apprend à confectionner des vêtements structurés (manteaux, vestes)." , job: "Tailleur, couturier", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée Professionnel Octave Feuilet - Lycée des métiers de la mode", Statut: "public", arrondissement: "16", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP metiers de l'entretien des textiles option a : entretien a sec", majeur:  "C", mineur: "R" , resume: "Forme à nettoyer et entretenir les textiles et vêtements." , job: "Pressing, blanchisseur", domain: "Services",    etablissements: [
+        {lycée: "Lycée professionnel Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP metiers du platre et de l'isolation", majeur:  "R", mineur: "C" , resume: "Apprend à poser des cloisons, du plâtre et de l'isolation dans les bâtiments." , job: "Plâtrier, plaquiste, staffeur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        ]},
+        { nom: " BAC PRO metiers de l'accueil", majeur: "S", mineur: "E" , resume: "Forme à accueillir et guider les visiteurs dans une entreprise ou un service public." , job: "Hôte d’accueil, réceptionniste", domain: "Services aux personnes",    etablissements: [
+        {lycée: "Lycée polyvalent Edgar Quinet", Statut: "public", arrondissement: "09", txreu: "80,2", va: "4,6"  },
+        {lycée: "Lycée polyvalent Jean Lurçat", Statut: "public", arrondissement: "13", txreu: "78,9", va: "-0,7"  },
+        {lycée: "Lycée polyvalent privé Le Rebours - Lycée des métiers du management et des services", Statut: "privé sous contrat", arrondissement: "13", txreu: "93,5", va: "-1,2"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre - Lycée des métiers privé de la vente et du commerce", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée professionnel Armand Carrel", Statut: "public", arrondissement: "19", txreu: "66,125", va: "-6,125"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "79,6", va: "-2,9"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  },
+        {lycée: "Lycée professionnel Suzanne Valadon", Statut: "public", arrondissement: "18", txreu: "79", va: "4,42857142857143"  },
+        ]},
+        { nom: " BAC PRO metiers de la coiffure", majeur: "S", mineur: "A" , resume: "Forme à toutes les techniques de coiffure, du diagnostic au conseil." , job: "Coiffeur, manager de salon", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "80,5384615384615", va: "-6,46153846153846"  },
+        {lycée: "Lycée professionnel privé Coiffure Marcel Lamy", Statut: "privé sous contrat", arrondissement: "18", txreu: "79,8", va: "-10,3333333333333"  },
+        ]},
+        { nom: " BAC PRO metiers de la mode-vêtements", majeur:  "R", mineur: "A" , resume: "Forme à concevoir et fabriquer des vêtements de A à Z." , job: "Modéliste, chef d'atelier", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée Professionnel Octave Feuilet - Lycée des métiers de la mode", Statut: "public", arrondissement: "16", txreu: "93,1", va: "3,55555555555556"  },
+        {lycée: "Lycée professionnel Turquetil - Lycée des métiers de la mode", Statut: "public", arrondissement: "11", txreu: "69", va: "-6,3"  },
+        ]},
+        { nom: " CAP metiers du pressing et de la blanchisserie", majeur:  "C", mineur: "R" , resume: "Apprend à entretenir, nettoyer et repasser les vêtements professionnels ou de collectivité." , job: "Agent de pressing, responsable de blanchisserie", domain: "Services",    etablissements: [
+        {lycée: "Lycée professionnel Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO metiers de l'electricité et de ses environnements connectés", majeur: "R", mineur: "I" , resume: "Forme à installer et entretenir des systèmes électriques intelligents." , job: "Électricien, technicien domotique, installateur de réseaux", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Louis Armand", Statut: "public", arrondissement: "15", txreu: "79,4", va: "3,7"  },
+        {lycée: "Lycée polyvalent privé Sainte Thérèse", Statut: "privé sous contrat", arrondissement: "16", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO metiers du commerce et de la vente option a animation et gestion de l'espace commercial", majeur:  "E", mineur: "C" , resume: "Apprend à vendre, organiser un magasin et gérer une équipe." , job: "Manager de rayon, responsable de boutique", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Etablissement régional d'enseignement adapté Crocé Spinelli", Statut: "public", arrondissement: "14", txreu: "77", va: "0,666666666666667"  },
+        {lycée: "Lycée polyvalent Edgar Quinet", Statut: "public", arrondissement: "09", txreu: "80,2", va: "4,6"  },
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "74,6", va: "-5,3"  },
+        {lycée: "Lycée polyvalent François Truffaut", Statut: "public", arrondissement: "03", txreu: "75,5", va: "-3,25"  },
+        {lycée: "Lycée polyvalent Jean Lurçat", Statut: "public", arrondissement: "13", txreu: "78,9", va: "-0,7"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "95,5", va: "1,8"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "98,2", va: "3,4"  },
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "88,1111111111111", va: "0,222222222222222"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre - Lycée des métiers privé de la vente et du commerce", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent Simone Weil", Statut: "public", arrondissement: "03", txreu: "81,1666666666667", va: "0"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée Professionnel Beaugrenelle - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "65,6", va: "-8,2"  },
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  },
+        {lycée: "Lycée professionnel Suzanne Valadon", Statut: "public", arrondissement: "18", txreu: "79", va: "4,42857142857143"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "72,5555555555556", va: "-4,88888888888889"  },
+        {lycée: "Lycée Professionnel Turquetil - Lycée des métiers de la mode", Statut: "public", arrondissement: "11", txreu: "69", va: "-6,3"  }
+        ]},
+        { nom: " BAC PRO metiers du commerce et de la vente option b prospection clientèle et valorisation de l'offre commerciale", majeur:  "E", mineur: "C" , resume: "Prépare à trouver de nouveaux clients et les convaincre d’acheter." , job: "Commercial, attaché commercial", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Etablissement régional d'enseignement adapté Crocé Spinelli", Statut: "public", arrondissement: "14", txreu: "77", va: "0,666666666666667"  },
+        {lycée: "Lycée polyvalent Edgar Quinet", Statut: "public", arrondissement: "09", txreu: "80,2", va: "4,6"  },
+        {lycée: "Lycée polyvalent Elisa Lemonnier", Statut: "public", arrondissement: "12", txreu: "74,6", va: "-5,3"  },
+        {lycée: "Lycée polyvalent François Truffaut", Statut: "public", arrondissement: "03", txreu: "75,5", va: "-3,25"  },
+        {lycée: "Lycée polyvalent Jean Lurçat", Statut: "public", arrondissement: "13", txreu: "78,9", va: "-0,7"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "95,5", va: "1,8"  },
+        {lycée: "Lycée polyvalent privé Carcado Saisseval - Lycée des métiers du management du commerce, des services et soins à la personne", Statut: "privé sous contrat", arrondissement: "06", txreu: "98,2", va: "3,4"  },
+        {lycée: "Lycée polyvalent privé L'Initiative", Statut: "privé sous contrat", arrondissement: "19", txreu: "88,1111111111111", va: "0,222222222222222"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée Polyvalent Privé Notre-Dame - Saint Vincent de Paul - Lycée des Métiers de la Santé et du social", Statut: "privé sous contrat", arrondissement: "13", txreu: "96,9", va: "4,8"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent privé Saint Jean de Montmartre - Lycée des métiers privé de la vente et du commerce", Statut: "privé sous contrat", arrondissement: "18", txreu: "95,6", va: "4,4"  },
+        {lycée: "Lycée polyvalent Simone Weil", Statut: "public", arrondissement: "03", txreu: "81,1666666666667", va: "0"  },
+        {lycée: "Lycée Professionnel Beaugrenelle", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée Professionnel Beaugrenelle - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "80,4", va: "0,5"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Claude Anthime Corbon - Lycée des métiers de la communication et de la gestion d'entreprise", Statut: "public", arrondissement: "15", txreu: "76,8", va: "-5,2"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "65,6", va: "-8,2"  },
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  },
+        {lycée: "Lycée professionnel René Cassin - Lycée des métiers de la communication de la gestion et du management d'entreprise", Statut: "public", arrondissement: "16", txreu: "74,1", va: "-3,4"  },
+        {lycée: "Lycée professionnel Suzanne Valadon", Statut: "public", arrondissement: "18", txreu: "79", va: "4,42857142857143"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "72,5555555555556", va: "-4,88888888888889"  },
+        {lycée: "Lycée Professionnel Turquetil - Lycée des métiers de la mode", Statut: "public", arrondissement: "11", txreu: "69", va: "-6,3"  }
+        ]},
+        { nom: " BAC PRO metiers du commerce et de la vente option c: vente specialisée en produits de luxe et produits frais", majeur:  "E", mineur: "A" , resume: "Forme à vendre des articles de luxe ou des produits alimentaires de qualité." , job: "Vendeur spécialisé, conseiller de vente", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée professionnel privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "95,5", va: "1,8"  },
+        {lycée: "Lycée professionnel Pierre Lescot", Statut: "public", arrondissement: "01", txreu: "75,5", va: "-3,7"  },
+        ]},
+        { nom: " BAC PRO metiers de la sécurité", majeur: "R", mineur: "E" , resume: "Prépare à des missions de sécurité, de surveillance et de secours." , job: "Agent de sécurité, sapeur-pompier, gendarme", domain: "Services à la collectivité",    etablissements: [
+        {lycée: "Lycée polyvalent privé Catherine Labouré", Statut: "privé sous contrat", arrondissement: "14", txreu: "98,75", va: "2"  },
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Maria Deraismes", Statut: "public", arrondissement: "17", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Théophile Gautier", Statut: "public", arrondissement: "12", txreu: "90,125", va: "-0,875"  },
+        ]},
+        { nom: " CAP metiers de la cordonnerie multiservice", majeur: "R", mineur: "C" , resume: "Forme à réparer chaussures, clés, montres et autres objets du quotidien." , job: "Cordonnier, réparateur multiservice", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent d'Alembert - Lycée des métiers de la mode", Statut: "public", arrondissement: "19", txreu: "88,9230769230769", va: "5,25"  },
+        ]},
+        { nom: " CAP peintre applicateur de revetements", majeur:  "R", mineur: "A" , resume: "Apprend à peindre et poser des revêtements muraux et de sol." , job: "Peintre en bâtiment, solier moquettiste", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        ]},
+        { nom: " CAP preparation et realisation d'ouvrages electriques", majeur:  "R", mineur: "I" , resume: "Forme à installer des systèmes électriques de base dans les bâtiments." , job: "Électricien du bâtiment", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Louis Armand", Statut: "public", arrondissement: "15", txreu: "79,4", va: "3,7"  },
+        ]},
+        { nom: " BAC PRO prothesiste dentaire", majeur:  "I", mineur: "R" , resume: "Apprend à fabriquer des prothèses et appareils dentaires." , job: "Prothésiste dentaire", domain: "Santé",    etablissements: [
+        {lycée: "Lycée professionnel Nicolas Louis Vauquelin", Statut: "public", arrondissement: "13", txreu: "84,6666666666667", va: "0,666666666666667"  },
+        ]},
+        { nom: " BAC PRO systèmes numériques option a : sûreté des infrastructures de l'habitat et du tertiaire", majeur:  "R", mineur: "I" , resume: "Forme à installer et entretenir des systèmes de sécurité (alarmes, vidéo)." , job: "Installateur d’alarmes, technicien en vidéosurveillance", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Louis Armand", Statut: "public", arrondissement: "15", txreu: "79,4", va: "3,7"  },
+        ]},
+        { nom: " BAC PRO technicien en chaudronnerie industrielle", majeur:  "R", mineur: "C" , resume: "Apprend à fabriquer des pièces métalliques complexes (tuyaux, réservoirs)." , job: "Chaudronnier, soudeur, tuyauteur", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien en realisation de produits mecaniques", majeur:  "R", mineur: "I" , resume: "Forme à fabriquer et contrôler des pièces de machines et d’objets techniques." , job: "Technicien d'usinage, ajusteur, mécanicien", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien menuisier agenceur", majeur:  "R", mineur: "A" , resume: "Apprend à concevoir et fabriquer des agencements intérieurs en bois." , job: "Menuisier, agenceur, designer d'intérieur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée polyvalent Léonard de Vinci - Lycée des métiers du bois", Statut: "public", arrondissement: "15", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel La Source - Lycée des métiers du BTP, de l'ameublement, et du bois", Statut: "public", arrondissement: "16", txreu: "81,25", va: "1,5"  },
+        ]},
+        { nom: " BAC PRO technicien en chaudronnerie industrielle", majeur: "R", mineur: "C" , resume: "Apprend à fabriquer des pièces métalliques complexes (tuyaux, réservoirs)." , job: "Chaudronnier, soudeur, tuyauteur", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien en realisation de produits mecaniques", majeur: "R", mineur: "I" , resume: "Forme à fabriquer et contrôler des pièces de machines et d’objets techniques." , job: "Technicien d'usinage, ajusteur, mécanicien", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien menuisier agenceur", majeur: "R", mineur: "A" , resume: "Apprend à concevoir et fabriquer des agencements intérieurs en bois." , job: "Menuisier, agenceur, designer d'intérieur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée polyvalent Léonard de Vinci - Lycée des métiers du bois", Statut: "public", arrondissement: "15", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel La Source - Lycée des métiers du BTP, de l'ameublement, et du bois", Statut: "public", arrondissement: "16", txreu: "81,25", va: "1,5"  },
+        ]},
+        { nom: " CAP tapissier d'ameublement en décor", majeur: "A", mineur: "R" , resume: "Forme à la création et restauration de rideaux, tentures murales, voilages et literies." , job: "Tapissier d’ameublement en décor", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP tapissier d'ameublement en siège", majeur: "A", mineur: "R" , resume: "Forme à la garniture et couverture de sièges (canapés, fauteuils)." , job: "Tapissier d’ameublement en siège", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Métiers de l'Ameublement", Statut: "public", arrondissement: "12", txreu: "90,2857142857143", va: "-0,166666666666667"  },
+        ]},
+        { nom: " BAC PRO transport", majeur:  "C", mineur: "R" , resume: "Apprend à organiser le transport de marchandises ou de personnes." , job: "Agent de transit, gestionnaire de flotte", domain: "Échanges et gestion",    etablissements: [
+        {lycée: "Lycée professionnel Charles de Gaulle", Statut: "public", arrondissement: "20", txreu: "nr", va: "nr"  },
+        {lycée: "Lycée professionnel Charles de Gaulle", Statut: "public", arrondissement: "20", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO maintenance des équipements industriels", majeur:  "R", mineur: "I" , resume: "Forme à réparer et entretenir les machines d’une usine." , job: "Technicien de maintenance industrielle", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Charles de Gaulle", Statut: "public", arrondissement: "20", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO pilote de ligne de production", majeur:  "R", mineur: "C" , resume: "Apprend à surveiller et gérer la fabrication de produits en usine." , job: "Opérateur de production, pilote de ligne", domain: "Specialites pluri-technologiques de la production",    etablissements: [
+        {lycée: "Lycée Professionnel N.L Vauquelin", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  },
+        {lycée: "Lycée Professionnel N.L Vauquelin - Lycée des métiers des procédés chimiques, des biotechnologies et de l'eau", Statut: "public", arrondissement: "13", txreu: "79,7", va: "0"  },
+        ]},
+        { nom: " BAC PRO techncien d'études du bâtiment option a : études et économie", majeur:  "I", mineur: "C" , resume: "Forme à l'étude des projets de construction (plans, devis, coûts)." , job: "Dessinateur projeteur, métreur", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        ]},
+        { nom: " BAC PRO techncien d'études du bâtiment option b : assistant en architecture", majeur:  "A", mineur: "I" , resume: "Prépare à travailler avec des architectes sur des projets de construction." , job: "Assistant d'architecte, dessinateur BTP", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "82,6", va: "8,3"  },
+        ]},
+        { nom: " BAC PRO technicien en installation des systèmes énergétiques et climatiques", majeur:  "R", mineur: "I" , resume: "Apprend à installer des systèmes de chauffage, climatisation et énergies renouvelables." , job: "Installateur thermique, climaticien, chauffagiste", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée polyvalent Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien de fabrication de bois et matériaux associés", majeur:  "R", mineur: "C" , resume: "Forme à la transformation du bois pour l'ameublement ou la construction." , job: "Technicien de scierie, opérateur de machine à bois", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée professionnel La Source - Lycée des métiers du BTP, de l'ameublement, et du bois", Statut: "public", arrondissement: "16", txreu: "81,25", va: "1,5"  },
+        ]},
+        { nom: " BAC PRO technicien géomètre - topographe", majeur:  "R", mineur: "I" , resume: "Apprend à mesurer les terrains et créer des cartes précises." , job: "Géomètre topographe, dessinateur BTP", domain: "Génie civil construction bois",    etablissements: [
+        {lycée: "Lycée polyvalent Dorian - Lycée des métiers de la mécatronique, de la topographie et de la verrerie", Statut: "public", arrondissement: "11", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP ferronnier d'art", majeur: "A", mineur: "R" , resume: "Apprend à créer des objets en fer forgé (portes, rampes d’escalier)." , job: "Ferronnier d’art, artisan du métal", domain: "Matériaux souples",    etablissements: [
+        {lycée: "Lycée professionnel Hector Guimard - Lycée des métiers du batiment, de l'artisanat et du patrimoine bâti", Statut: "public", arrondissement: "19", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP maintenance des véhicules option a : voitures particulières", majeur:  "R", mineur: "C" , resume: "Forme à réparer et entretenir les voitures." , job: "Mécanicien auto", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Camille Jenatzy", Statut: "public", arrondissement: "18", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " CAP cuisine", majeur:  "R", mineur: "A" , resume: "Apprend à préparer des plats simples et à gérer une cuisine." , job: "Commis de cuisine, cuisinier", domain: "Services",    etablissements: [
+        {lycée: "Lycée polyvalent Guillaume Tirel - Lycée des métiers de l' hotellerie", Statut: "public", arrondissement: "14", txreu: "94,1538461538462", va: "8,23076923076923"  },
+        {lycée: "Lycée Polyvalent Jean Drouant - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "17", txreu: "83,1538461538462", va: "2,30769230769231"  },
+        {lycée: "Lycée polyvalent privé Albert de Mun", Statut: "privé sous contrat", arrondissement: "07", txreu: "94,3846153846154", va: "2,23076923076923"  },
+        {lycée: "Lycée professionnel Belliard - Lycée des métiers de l'hôtellerie et de la restauration", Statut: "public", arrondissement: "18", txreu: "83,1538461538462", va: "6,18181818181818"  },
+        ]},
+        { nom: " BAC PRO plastiques et composites", majeur:  "R", mineur: "I" , resume: "Forme à fabriquer des objets en plastique ou en matériaux composites." , job: "Technicien en plasturgie, opérateur composite", domain: "Specialites pluri-technologiques de la production",    etablissements: [
+        {lycée: "Lycée polyvalent Charles de Gaulle", Statut: "public", arrondissement: "20", txreu: "nr", va: "nr"  },
+        ]},
+        { nom: " BAC PRO technicien en réalisation de produits mécaniques", majeur: "R", mineur: "I" , resume: "Forme à fabriquer et contrôler des pièces de machines et d’objets techniques." , job: "Technicien d'usinage, ajusteur, mécanicien", domain: "Mécanique électricité électronique",    etablissements: [
+        {lycée: "Lycée professionnel Gustave Eiffel", Statut: "public", arrondissement: "07", txreu: "nr", va: "nr"  },
+        ]},
+        ];
+
+        const form = document.getElementById("riasecForm");
+        const results = document.getElementById("results");
+
+        form.addEventListener("change", function() {
+            const checkedBoxes = Array.from(form.querySelectorAll("input[type='checkbox']:checked")).map(cb => cb.value);
+
+            let filtered = [];
+            if (checkedBoxes.length > 0) {
+                filtered = formations.filter(f => {
+                    const majeurMatch = checkedBoxes.includes(f.majeur);
+                    const mineurMatch = checkedBoxes.includes(f.mineur);
+                    return majeurMatch || mineurMatch;
+                });
+            }
+
+            let message = "";
+            let count = filtered.length;
+
+            if (count > 0) {
+                message = `<p><strong>${count}</strong> formation(s) correspond(ent) à ces domaines en majeur et/ou mineur.</p>`;
+            } else {
+                 message = `<p>Aucune formation ne correspond à votre sélection.</p>`;
+            }
+
+            results.innerHTML = message;
+
+            if (count > 0) {
+                filtered.forEach(f => {
+                    const div = document.createElement("div");
+                    div.className = "formation";
+                    div.innerHTML = `
+                <strong>${f.nom}</strong><br>
+                <em>Domaine :</em> ${f.domain}<br>
+                <em>Résumé :</em> ${f.resume}<br>
+                <em>Métiers associés :</em> ${f.job}<br>
+                <em>RIASEC :</em> Majeur ${f.majeur}, Mineur ${f.mineur}<br>
+                <em>Établissements parisiens :</em>
+                <ul>
+                    ${f.etablissements.map(e => `
+                        <li>
+                        <strong>${e.lycée}</strong> (Arr. ${e.arrondissement})<br>
+                        Statut : ${e.Statut}<br>
+                        Taux de réussite : ${e.txreu === "nr" ? "Non renseigné" : e.txreu + "%"}<br>
+                        Valeur ajoutée : ${e.va === "nr" ? "Non renseignée" : e.va}
+                        </li>
+                    `).join('')}
+                </ul>
+              `;
+                    results.appendChild(div);
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>
